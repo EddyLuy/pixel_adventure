@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
+import 'package:pixel_adventure/Components/collision_block.dart';
 import 'package:pixel_adventure/Components/player.dart';
 import 'package:pixel_adventure/enums/enums_characters.dart';
 
@@ -11,6 +12,7 @@ class Level extends World {
   final String levelName;
   final Player player;
   late TiledComponent level;
+  List<CollisionBlock> collisionBlocks = [];
 
   @override
   FutureOr<void> onLoad() async {
@@ -40,12 +42,27 @@ class Level extends World {
       for (final collision in collisionsLayer.objects) {
         switch (collision.class_) {
           case 'Platform':
-            final platform = ;
+            final platform = CollisionBlock(
+              position: Vector2(collision.x, collision.y),
+              size: Vector2(collision.width, collision.height),
+              isPlatform: true,
+            );
+            collisionBlocks.add(platform);
+            add(platform);
             break;
           default:
+            final block = CollisionBlock(
+              position: Vector2(collision.x, collision.y),
+              size: Vector2(collision.width, collision.height),
+            );
+            collisionBlocks.add(block);
+            add(block);
+            break;
         }
       }
     }
+
+    player.collisionBlocks = collisionBlocks;
 
     return super.onLoad();
   }
