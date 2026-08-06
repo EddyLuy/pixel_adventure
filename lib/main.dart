@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Only apply fullscreen/orientation on mobile
   if (!Platform.isWindows && !Platform.isLinux && !Platform.isMacOS) {
-    Flame.device.fullScreen();
-    Flame.device.setLandscape();
+    await Flame.device.fullScreen();
+    await Flame.device.setLandscape();
   }
 
   PixelAdventure game = PixelAdventure();
