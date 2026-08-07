@@ -39,6 +39,8 @@ class PixelAdventure extends FlameGame
 
     addAll([cam, world]);
 
+    add(FpsTextComponent(position: Vector2(10, 10)));
+
     if (showJoystick) {
       addJoystick();
     }

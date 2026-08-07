@@ -4,6 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
 import 'package:pixel_adventure/Components/background_tile.dart';
 import 'package:pixel_adventure/Components/collision_block.dart';
+import 'package:pixel_adventure/Components/fruit.dart';
 import 'package:pixel_adventure/Components/player.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 
@@ -43,11 +44,11 @@ class Level extends World with HasGameReference<PixelAdventure> {
 
     if (backgroundLayer != null) {
       final backgroundColor = backgroundLayer.properties.getValue(
-        'BackgroundColor',
+        'Background Color',
       );
 
       // Generate background tiling
-      for (double y = 0; y < numTilesY; y++) {
+      for (double y = 0; y < game.size.y / numTilesY; y++) {
         for (double x = 0; x < numTilesX; x++) {
           // repeat across y
           final backgroundTile = BackgroundTile(
@@ -77,6 +78,14 @@ class Level extends World with HasGameReference<PixelAdventure> {
             player.position = Vector2(spawnPoint.x, spawnPoint.y);
             add(player);
             break;
+          case 'Fruit':
+            print("Fruit Spawn Point at ${spawnPoint.x}, ${spawnPoint.y}");
+            final fruit = Fruit(
+              fruit: spawnPoint.name,
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+            );
+            add(fruit);
           default:
         }
       }

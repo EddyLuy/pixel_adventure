@@ -4,7 +4,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 import 'package:pixel_adventure/Components/collision_block.dart';
-import 'package:pixel_adventure/Components/player_hitbox.dart';
+import 'package:pixel_adventure/Components/custom_hitbox.dart';
 import 'package:pixel_adventure/Components/utils.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 
@@ -35,9 +35,10 @@ class Player extends SpriteAnimationGroupComponent
   bool hasJumped = false;
 
   List<CollisionBlock> collisionBlocks = [];
+  bool hitCeilingThisFrame = false;
 
   // Unique for each character
-  PlayerHitbox hitbox = PlayerHitbox(
+  CustomHitbox hitbox = CustomHitbox(
     offsetX: 10,
     offsetY: 4,
     width: 14,
@@ -48,7 +49,7 @@ class Player extends SpriteAnimationGroupComponent
   FutureOr<void> onLoad() {
     _loadAllAnimations();
 
-    //  debugMode = true; // show player hitboxes
+    // debugMode = true; // show player hitboxes
     add(
       RectangleHitbox(
         position: Vector2(hitbox.offsetX, hitbox.offsetY),
@@ -63,9 +64,13 @@ class Player extends SpriteAnimationGroupComponent
   void update(double dt) {
     _updatePlayerState(dt);
     _updatePlayerMoment(dt);
+
     _checkHorizontalCollisions();
+
     _applyGravity(dt);
     _checkVerticalCollisions();
+
+    hitCeilingThisFrame = false;
     super.update(dt);
   }
 
@@ -169,6 +174,7 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _checkHorizontalCollisions() {
+    if (hitCeilingThisFrame) return;
     // print('(${position.x},${position.y})');
     for (final block in collisionBlocks) {
       // Handle Collisions
@@ -225,6 +231,7 @@ class Player extends SpriteAnimationGroupComponent
             print('top collision');
             velocity.y = 0;
             position.y = block.y + block.height - hitbox.offsetY;
+            hitCeilingThisFrame = true;
 
             break;
           }
