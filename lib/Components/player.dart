@@ -182,8 +182,10 @@ class Player extends SpriteAnimationGroupComponent
           }
           if (velocity.x < 0) {
             print('left collision');
+            print('${position.x}');
             velocity.x = 0;
-            position.x = block.x + block.width + hitbox.width - hitbox.offsetX;
+            position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
+            print('${position.x}');
             break;
           }
         }
@@ -214,11 +216,13 @@ class Player extends SpriteAnimationGroupComponent
       } else {
         if (checkCollision(this, block)) {
           if (velocity.y > 0) {
+            print('bottom collision');
             velocity.y = 0;
             position.y = block.y - hitbox.height - hitbox.offsetY;
             isOnGround = true;
             break;
           } else if (velocity.y < 0) {
+            print('top collision');
             velocity.y = 0;
             position.y = block.y + block.height - hitbox.offsetY;
 
