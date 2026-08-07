@@ -169,18 +169,21 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _checkHorizontalCollisions() {
+    // print('(${position.x},${position.y})');
     for (final block in collisionBlocks) {
       // Handle Collisions
       if (!block.isPlatform) {
         if (checkCollision(this, block)) {
           if (velocity.x > 0) {
+            print('right collision');
             velocity.x = 0;
             position.x = block.x - hitbox.offsetX - hitbox.width;
             break;
           }
           if (velocity.x < 0) {
+            print('left collision');
             velocity.x = 0;
-            position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
+            position.x = block.x + block.width + hitbox.width - hitbox.offsetX;
             break;
           }
         }

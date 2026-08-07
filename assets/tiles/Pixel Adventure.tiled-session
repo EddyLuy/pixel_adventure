@@ -7,11 +7,11 @@
             "expandedObjectLayers": [
                 4
             ],
-            "scale": 0.5,
-            "selectedLayer": 0,
+            "scale": 1.8314,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 717,
-                "y": 177
+                "x": 358.4689308725565,
+                "y": 182.10112482254013
             }
         },
         "Level-02.tmx": {
@@ -19,11 +19,14 @@
                 2
             ],
             "scale": 3.1977,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 118.36632579666636,
+                "x": 229.0708947055696,
                 "y": 155.5805735372299
             }
+        },
+        "Pixel Adventure.tsx": {
+            "scaleInEditor": 1
         }
     },
     "last.imagePath": "C:/Users/eddyl/Documents/GitHub/pixel_adventure/assets/images/Terrain",
@@ -36,6 +39,7 @@
     ],
     "project": "Pixel Adventure.tiled-project",
     "recentFiles": [
+        "Pixel Adventure.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
