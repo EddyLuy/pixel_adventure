@@ -6,6 +6,7 @@ import 'package:pixel_adventure/Components/background_tile.dart';
 import 'package:pixel_adventure/Components/collision_block.dart';
 import 'package:pixel_adventure/Components/fruit.dart';
 import 'package:pixel_adventure/Components/player.dart';
+import 'package:pixel_adventure/Components/saw.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 
 //with HasGameReference gets info about the game
@@ -86,6 +87,20 @@ class Level extends World with HasGameReference<PixelAdventure> {
               size: Vector2(spawnPoint.width, spawnPoint.height),
             );
             add(fruit);
+            break;
+          case 'Saw':
+            final isVertical = spawnPoint.properties.getValue('isVertical');
+            final offNeg = spawnPoint.properties.getValue('offNeg');
+            final offPos = spawnPoint.properties.getValue('offPos');
+            final saw = Saw(
+              isVertical: isVertical,
+              offNeg: offNeg,
+              offPos: offPos,
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(spawnPoint.width, spawnPoint.height),
+            );
+            add(saw);
+            break;
           default:
         }
       }
