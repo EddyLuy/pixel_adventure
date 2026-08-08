@@ -72,6 +72,7 @@ flutter:
      - assets/images/Main Characters/
      - assets/images/HUD/
      - assets/images/Items/Fruits/
+     - assets/images/Items/Checkpoints/Checkpoint/
      - assets/images/Traps/Saw/
 
   # An image asset can refer to one or more resolution-specific "variants", see

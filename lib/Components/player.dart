@@ -34,19 +34,24 @@ class Player extends SpriteAnimationGroupComponent
   final double _terminalVelocity = 700;
 
   double horizontalMovement = 0;
+  double moveSpeed = 100;
+
+  bool dropThroughPlatform = false;
+  double dropThroughTimer = 0;
 
   double keyboardMovement = 0;
   double controllerMovement = 0;
+  double controllerVerticalMovement = 0;
 
   bool keyboardJump = false;
   bool controllerJump = false;
 
-  double moveSpeed = 100;
   Vector2 startingPosition = Vector2.zero();
   Vector2 velocity = Vector2.zero();
   bool isOnGround = false;
   bool hasJumped = false;
   bool gotHit = false;
+  bool isOnPlatform = false;
 
   List<CollisionBlock> collisionBlocks = [];
   bool hitCeilingThisFrame = false;
@@ -74,10 +79,18 @@ class Player extends SpriteAnimationGroupComponent
     }
 
     _gamepadSubscription = Gamepads.normalizedEvents.listen((event) {
-      if (event.axis == GamepadAxis.leftStickX) {
-        const deadzone = 0.15;
+      const deadzone = 0.15;
 
+      if (event.axis == GamepadAxis.leftStickX) {
         controllerMovement = event.value.abs() > deadzone ? event.value : 0;
+
+        print('STICK Y: ${event.value}');
+      }
+
+      if (event.axis == GamepadAxis.leftStickY) {
+        controllerVerticalMovement = event.value.abs() > deadzone
+            ? event.value
+            : 0;
       }
 
       if (event.button == GamepadButton.a) {
@@ -103,6 +116,14 @@ class Player extends SpriteAnimationGroupComponent
   // Every Frame
   @override
   void update(double dt) {
+    if (dropThroughTimer > 0) {
+      dropThroughTimer -= dt;
+
+      if (dropThroughTimer <= 0) {
+        dropThroughPlatform = false;
+      }
+    }
+
     if (!gotHit) {
       _updatePlayerState(dt);
       _updatePlayerMoment(dt);
@@ -137,6 +158,10 @@ class Player extends SpriteAnimationGroupComponent
         keysPressed.contains(LogicalKeyboardKey.keyD) ||
         keysPressed.contains(LogicalKeyboardKey.arrowRight);
 
+    final isDownKeyPressed =
+        keysPressed.contains(LogicalKeyboardKey.arrowDown) ||
+        keysPressed.contains(LogicalKeyboardKey.keyS);
+
     keyboardMovement = 0;
 
     if (isLeftKeyPressed) {
@@ -145,6 +170,10 @@ class Player extends SpriteAnimationGroupComponent
 
     if (isRightKeyPressed) {
       keyboardMovement += 1;
+    }
+
+    if (isDownKeyPressed) {
+      _dropThroughPlatform();
     }
 
     keyboardJump =
@@ -257,6 +286,11 @@ class Player extends SpriteAnimationGroupComponent
 
     hasJumped = keyboardJump || controllerJump;
 
+    // Controller left stick down = drop through platform
+    if (controllerVerticalMovement < -0.5) {
+      _dropThroughPlatform();
+    }
+
     velocity.x = horizontalMovement * moveSpeed;
 
     position.x += velocity.x * dt;
@@ -307,27 +341,33 @@ class Player extends SpriteAnimationGroupComponent
 
   void _checkVerticalCollisions() {
     for (final block in collisionBlocks) {
+      //Handle platforms differently
       if (block.isPlatform) {
-        //Handle platforms differently
+        if (dropThroughPlatform) {
+          continue;
+        }
+
         if (checkCollision(this, block)) {
           // falling
           if (velocity.y > 0) {
             velocity.y = 0;
             position.y = block.y - hitbox.height - hitbox.offsetY;
             isOnGround = true;
+            isOnPlatform = true;
             break;
           }
         }
       } else {
         if (checkCollision(this, block)) {
           if (velocity.y > 0) {
-            print('bottom collision');
+            //  print('bottom collision');
             velocity.y = 0;
             position.y = block.y - hitbox.height - hitbox.offsetY;
             isOnGround = true;
+            isOnPlatform = false;
             break;
           } else if (velocity.y < 0) {
-            print('top collision');
+            // print('top collision');
             velocity.y = 0;
             position.y = block.y + block.height - hitbox.offsetY;
             hitCeilingThisFrame = true;
@@ -360,5 +400,23 @@ class Player extends SpriteAnimationGroupComponent
   void onRemove() {
     _gamepadSubscription?.cancel();
     super.onRemove();
+  }
+
+  void _dropThroughPlatform() {
+    print(
+      'DROP ATTEMPT - '
+      'isOnGround: $isOnGround, '
+      'isOnPlatform: $isOnPlatform, '
+      'stickY: $controllerVerticalMovement',
+    );
+
+    if (!isOnPlatform) return;
+
+    print('*** DROPPING THROUGH PLATFORM ***');
+
+    dropThroughPlatform = true;
+    dropThroughTimer = 0.2;
+    isOnGround = false;
+    isOnPlatform = false;
   }
 }
