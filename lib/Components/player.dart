@@ -81,6 +81,18 @@ class Player extends SpriteAnimationGroupComponent
     }
 
     super.update(dt);
+
+    // Check AFTER Flame has updated the animation ticker
+    if (gotHit &&
+        current == PlayerState.appearing &&
+        animationTicker?.done() == true) {
+      velocity = Vector2.zero();
+      position = startingPosition;
+
+      gotHit = false;
+
+      _updatePlayerState(0);
+    }
   }
 
   @override
@@ -158,6 +170,7 @@ class Player extends SpriteAnimationGroupComponent
         amount: amount,
         stepTime: stepTime,
         textureSize: Vector2(96, 96),
+        loop: false,
       ),
     );
   }
@@ -280,21 +293,18 @@ class Player extends SpriteAnimationGroupComponent
 
   void _respawn() {
     const hitDuration = Duration(milliseconds: 500);
-    const appearingDuration = Duration(milliseconds: 1100);
+
     gotHit = true;
-    // Set hit animation
+
+    // Play hit animation
     current = PlayerState.hit;
+
     Future.delayed(hitDuration, () {
       scale.x = 1;
       position = startingPosition - Vector2.all(96 - 64);
-      // gotHit = false;
+
+      // Start appearing animation
       current = PlayerState.appearing;
-    });
-    Future.delayed(appearingDuration, () {
-      velocity = Vector2.all(0);
-      position = startingPosition;
-      _updatePlayerState(0);
-      gotHit = false;
     });
   }
 }
