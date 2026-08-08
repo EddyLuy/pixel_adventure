@@ -22,11 +22,11 @@ class Player extends SpriteAnimationGroupComponent
 
   bool keyboardActive = false;
 
-  final double stepTime = 0.03;
+  final double stepTime = 0.08;
 
-  final double _gravity = 9.81;
+  final double _gravity = 1200;
   final double _jumpForce = 450;
-  final double _terminalVelocity = 300;
+  final double _terminalVelocity = 700;
 
   double horizontalMovement = 0;
   double moveSpeed = 100;
@@ -203,7 +203,7 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _applyGravity(double dt) {
-    velocity.y += _gravity;
+    velocity.y += _gravity * dt;
     //Clamp upper and lower directions of velocity.y
     velocity.y = velocity.y.clamp(-_jumpForce, _terminalVelocity);
     position.y += velocity.y * dt;
