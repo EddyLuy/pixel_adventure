@@ -9,6 +9,7 @@ import 'package:flutter/painting.dart';
 import 'package:pixel_adventure/Components/player.dart';
 import 'package:pixel_adventure/enums/enums_characters.dart';
 import 'package:pixel_adventure/Components/level.dart';
+import 'package:gamepads/gamepads.dart';
 
 class PixelAdventure extends FlameGame
     with HasKeyboardHandlerComponents, DragCallbacks, HasCollisionDetection {

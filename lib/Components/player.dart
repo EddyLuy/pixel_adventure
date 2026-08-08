@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
+import 'package:gamepads/gamepads.dart';
 import 'package:pixel_adventure/Components/collision_block.dart';
 import 'package:pixel_adventure/Components/custom_hitbox.dart';
 import 'package:pixel_adventure/Components/fruit.dart';
@@ -33,6 +34,13 @@ class Player extends SpriteAnimationGroupComponent
   final double _terminalVelocity = 700;
 
   double horizontalMovement = 0;
+
+  double keyboardMovement = 0;
+  double controllerMovement = 0;
+
+  bool keyboardJump = false;
+  bool controllerJump = false;
+
   double moveSpeed = 100;
   Vector2 startingPosition = Vector2.zero();
   Vector2 velocity = Vector2.zero();
@@ -51,8 +59,32 @@ class Player extends SpriteAnimationGroupComponent
     height: 28,
   );
 
+  StreamSubscription<NormalizedGamepadEvent>? _gamepadSubscription;
+
   @override
-  FutureOr<void> onLoad() {
+  FutureOr<void> onLoad() async {
+    print('PLAYER ONLOAD - GAMEPAD LISTENER STARTED');
+
+    final controllers = await Gamepads.list();
+
+    print('CONTROLLERS FOUND: ${controllers.length}');
+
+    for (final controller in controllers) {
+      print('CONTROLLER: ${controller.name} | ID: ${controller.id}');
+    }
+
+    _gamepadSubscription = Gamepads.normalizedEvents.listen((event) {
+      if (event.axis == GamepadAxis.leftStickX) {
+        const deadzone = 0.15;
+
+        controllerMovement = event.value.abs() > deadzone ? event.value : 0;
+      }
+
+      if (event.button == GamepadButton.a) {
+        controllerJump = event.value != 0;
+      }
+    });
+
     _loadAllAnimations();
 
     // get spawn coordinates and save for deaths
@@ -97,23 +129,30 @@ class Player extends SpriteAnimationGroupComponent
 
   @override
   bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
-    horizontalMovement = 0;
     final isLeftKeyPressed =
         keysPressed.contains(LogicalKeyboardKey.keyA) ||
         keysPressed.contains(LogicalKeyboardKey.arrowLeft);
+
     final isRightKeyPressed =
         keysPressed.contains(LogicalKeyboardKey.keyD) ||
         keysPressed.contains(LogicalKeyboardKey.arrowRight);
 
-    horizontalMovement += isLeftKeyPressed ? -1 : 0;
-    horizontalMovement += isRightKeyPressed ? 1 : 0;
+    keyboardMovement = 0;
 
-    hasJumped =
+    if (isLeftKeyPressed) {
+      keyboardMovement -= 1;
+    }
+
+    if (isRightKeyPressed) {
+      keyboardMovement += 1;
+    }
+
+    keyboardJump =
         keysPressed.contains(LogicalKeyboardKey.keyW) ||
         keysPressed.contains(LogicalKeyboardKey.space) ||
         keysPressed.contains(LogicalKeyboardKey.arrowUp);
 
-    keyboardActive = horizontalMovement != 0;
+    keyboardActive = keyboardMovement != 0;
 
     return super.onKeyEvent(event, keysPressed);
   }
@@ -210,7 +249,16 @@ class Player extends SpriteAnimationGroupComponent
       isOnGround = false;
     }
 
+    // Combine keyboard + controller input
+    horizontalMovement = keyboardMovement + controllerMovement;
+
+    // Clamp so keyboard + controller together can't exceed 1
+    horizontalMovement = horizontalMovement.clamp(-1.0, 1.0);
+
+    hasJumped = keyboardJump || controllerJump;
+
     velocity.x = horizontalMovement * moveSpeed;
+
     position.x += velocity.x * dt;
   }
 
@@ -306,5 +354,11 @@ class Player extends SpriteAnimationGroupComponent
       // Start appearing animation
       current = PlayerState.appearing;
     });
+  }
+
+  @override
+  void onRemove() {
+    _gamepadSubscription?.cancel();
+    super.onRemove();
   }
 }
