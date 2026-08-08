@@ -11,7 +11,7 @@ import 'package:pixel_adventure/enums/enums_characters.dart';
 import 'package:pixel_adventure/Components/level.dart';
 
 class PixelAdventure extends FlameGame
-    with HasKeyboardHandlerComponents, DragCallbacks {
+    with HasKeyboardHandlerComponents, DragCallbacks, HasCollisionDetection {
   @override
   // Match colour of background to remove black bars
   Color backgroundColor() => const Color(0xFF211F30);
