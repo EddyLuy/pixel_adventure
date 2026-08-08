@@ -50,10 +50,16 @@ class PixelAdventure extends FlameGame
 
   @override
   void update(double dt) {
-    if (showJoystick) {
-      updateJoystick();
+    double remainingDt = dt.clamp(0.0, 0.05);
+    const double maxSubStep = 1.0 / 120.0;
+    while (remainingDt > 0) {
+      final step = remainingDt < maxSubStep ? remainingDt : maxSubStep;
+      if (showJoystick) {
+        updateJoystick();
+      }
+      super.update(step);
+      remainingDt -= step;
     }
-    super.update(dt);
   }
 
   void addJoystick() {

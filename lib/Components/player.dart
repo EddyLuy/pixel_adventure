@@ -25,7 +25,7 @@ class Player extends SpriteAnimationGroupComponent
   final double stepTime = 0.05;
 
   final double _gravity = 9.81;
-  final double _jumpForce = 300;
+  final double _jumpForce = 450;
   final double _terminalVelocity = 300;
 
   double horizontalMovement = 0;
@@ -190,7 +190,10 @@ class Player extends SpriteAnimationGroupComponent
             print('left collision');
             print('${position.x}');
             velocity.x = 0;
-            position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
+            //position.x = block.x + block.width + hitbox.width + hitbox.offsetX;
+            position.x = scale.x < 0
+                ? block.x + block.width + hitbox.width + hitbox.offsetX
+                : block.x + block.width - hitbox.offsetX;
             print('${position.x}');
             break;
           }
