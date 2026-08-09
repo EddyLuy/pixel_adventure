@@ -8,7 +8,7 @@ class BackgroundTile extends SpriteComponent
   final String color;
   BackgroundTile({this.color = 'Gray', super.position});
 
-  final double scrollSpeed = 1;
+  final double scrollSpeed = 0.5;
 
   @override
   FutureOr<void> onLoad() {
