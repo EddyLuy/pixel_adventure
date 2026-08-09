@@ -8,6 +8,7 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
+import 'package:pixel_adventure/Components/jump_button.dart';
 import 'package:pixel_adventure/Components/player.dart';
 import 'package:pixel_adventure/enums/enums_characters.dart';
 import 'package:pixel_adventure/Components/level.dart';
@@ -32,7 +33,7 @@ class PixelAdventure extends FlameGame
   //Initialize player
   Player player = Player(character: EnumCharacterNames.pink.text);
   JoystickComponent? joystick;
-  bool showJoystick = true;
+  bool showMobileControls = true;
 
   @override
   FutureOr<void> onLoad() async {
@@ -44,8 +45,9 @@ class PixelAdventure extends FlameGame
     _loadLevel();
 
     // Show joystick only if mobile
-    if (showJoystick && isMobile) {
+    if (showMobileControls && isMobile) {
       addJoystick();
+      add(JumpButton());
     }
 
     // add(FpsTextComponent(position: Vector2(10, 10)));
@@ -92,6 +94,8 @@ class PixelAdventure extends FlameGame
   void updateJoystick() {
     if (joystick == null) return;
 
+    print('JOYSTICK: ${joystick!.intensity}');
+
     // Physical controller takes priority over the on-screen joystick
     if (player.controllerConnected) {
       player.joystickMovement = 0;
@@ -115,17 +119,17 @@ class PixelAdventure extends FlameGame
       case JoystickDirection.left:
       case JoystickDirection.upLeft:
       case JoystickDirection.downLeft:
-        player.horizontalMovement = -1;
+        player.joystickMovement = -1;
         break;
 
       case JoystickDirection.right:
       case JoystickDirection.upRight:
       case JoystickDirection.downRight:
-        player.horizontalMovement = 1;
+        player.joystickMovement = 1;
         break;
 
       default:
-        player.controllerMovement = 0;
+        player.joystickMovement = 0;
         break;
     }
   }

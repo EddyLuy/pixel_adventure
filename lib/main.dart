@@ -8,6 +8,8 @@ import 'package:pixel_adventure/Components/current_level_display.dart';
 import 'package:pixel_adventure/Components/fps_display.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 
+//TODO: Controller stops working after level 1.
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Only apply fullscreen/orientation on mobile
