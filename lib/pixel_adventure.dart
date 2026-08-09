@@ -26,7 +26,7 @@ class PixelAdventure extends FlameGame
 
   //Initialize player
   Player player = Player(character: EnumCharacterNames.pink.text);
-  late JoystickComponent joystick;
+  JoystickComponent? joystick;
   bool showJoystick = true;
 
   @override
@@ -72,7 +72,7 @@ class PixelAdventure extends FlameGame
     const double maxSubStep = 1.0 / 120.0;
     while (remainingDt > 0) {
       final step = remainingDt < maxSubStep ? remainingDt : maxSubStep;
-      if (showJoystick) {
+      if (joystick != null) {
         updateJoystick();
       }
       super.update(step);
@@ -89,10 +89,12 @@ class PixelAdventure extends FlameGame
       margin: const EdgeInsets.only(left: 32, bottom: 32),
     );
 
-    add(joystick);
+    add(joystick!);
   }
 
   void updateJoystick() {
+    if (joystick == null) return;
+
     // Physical controller takes priority over the on-screen joystick
     if (player.controllerConnected) {
       player.joystickMovement = 0;
@@ -106,13 +108,13 @@ class PixelAdventure extends FlameGame
     }
 
     // Joystick isn't being touched
-    if (joystick.intensity == 0) {
+    if (joystick!.intensity == 0) {
       player.joystickMovement = 0;
       return;
     }
 
     // Joystick is actively being moved
-    switch (joystick.direction) {
+    switch (joystick!.direction) {
       case JoystickDirection.left:
       case JoystickDirection.upLeft:
       case JoystickDirection.downLeft:
