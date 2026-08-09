@@ -42,6 +42,8 @@ class Player extends SpriteAnimationGroupComponent
   double keyboardMovement = 0;
   double controllerMovement = 0;
   double controllerVerticalMovement = 0;
+  double joystickMovement = 0;
+  bool controllerConnected = false;
 
   bool keyboardJump = false;
   bool controllerJump = false;
@@ -71,8 +73,10 @@ class Player extends SpriteAnimationGroupComponent
     print('PLAYER ONLOAD - GAMEPAD LISTENER STARTED');
 
     final controllers = await Gamepads.list();
+    controllerConnected = controllers.isNotEmpty;
 
     print('CONTROLLERS FOUND: ${controllers.length}');
+    print('CONTROLLER CONNECTED: $controllerConnected');
 
     for (final controller in controllers) {
       print('CONTROLLER: ${controller.name} | ID: ${controller.id}');
@@ -126,7 +130,7 @@ class Player extends SpriteAnimationGroupComponent
 
     if (!gotHit) {
       _updatePlayerState(dt);
-      _updatePlayerMoment(dt);
+      _updatePlayerMovement(dt);
       _checkHorizontalCollisions();
       _applyGravity(dt);
       _checkVerticalCollisions();
@@ -270,7 +274,7 @@ class Player extends SpriteAnimationGroupComponent
     current = playerState;
   }
 
-  void _updatePlayerMoment(double dt) {
+  void _updatePlayerMovement(double dt) {
     if (hasJumped && isOnGround) {
       _playerJump(dt);
     }
@@ -279,7 +283,8 @@ class Player extends SpriteAnimationGroupComponent
     }
 
     // Combine keyboard + controller input
-    horizontalMovement = keyboardMovement + controllerMovement;
+    horizontalMovement =
+        keyboardMovement + controllerMovement + joystickMovement;
 
     // Clamp so keyboard + controller together can't exceed 1
     horizontalMovement = horizontalMovement.clamp(-1.0, 1.0);

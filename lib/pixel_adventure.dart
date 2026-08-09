@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flame/components.dart';
@@ -9,7 +10,6 @@ import 'package:flutter/painting.dart';
 import 'package:pixel_adventure/Components/player.dart';
 import 'package:pixel_adventure/enums/enums_characters.dart';
 import 'package:pixel_adventure/Components/level.dart';
-import 'package:gamepads/gamepads.dart';
 
 class PixelAdventure extends FlameGame
     with HasKeyboardHandlerComponents, DragCallbacks, HasCollisionDetection {
@@ -17,6 +17,8 @@ class PixelAdventure extends FlameGame
   // Match colour of background to remove black bars
   Color backgroundColor() => const Color(0xFF211F30);
   late final CameraComponent cam;
+
+  bool get isMobile => Platform.isAndroid || Platform.isIOS;
 
   double currentFps = 0;
   double _fpsTimer = 0;
@@ -44,11 +46,12 @@ class PixelAdventure extends FlameGame
 
     addAll([cam, world]);
 
-    // add(FpsTextComponent(position: Vector2(10, 10)));
-
-    if (showJoystick) {
+    // Show joystick only if mobile
+    if (showJoystick && isMobile) {
       addJoystick();
     }
+
+    // add(FpsTextComponent(position: Vector2(10, 10)));
 
     return super.onLoad();
   }
@@ -90,12 +93,21 @@ class PixelAdventure extends FlameGame
   }
 
   void updateJoystick() {
-    // If keyboard is active, joystick must not interfere
-    if (player.keyboardActive) return;
+    // Physical controller takes priority over the on-screen joystick
+    if (player.controllerConnected) {
+      player.joystickMovement = 0;
+      return;
+    }
 
-    // If joystick is not being touched, stop movement
+    // Keyboard takes priority over the on-screen joystick
+    if (player.keyboardActive) {
+      player.joystickMovement = 0;
+      return;
+    }
+
+    // Joystick isn't being touched
     if (joystick.intensity == 0) {
-      player.horizontalMovement = 0;
+      player.joystickMovement = 0;
       return;
     }
 
@@ -114,7 +126,7 @@ class PixelAdventure extends FlameGame
         break;
 
       default:
-        player.horizontalMovement = 0;
+        player.controllerMovement = 0;
         break;
     }
   }
