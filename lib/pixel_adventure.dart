@@ -94,8 +94,6 @@ class PixelAdventure extends FlameGame
   void updateJoystick() {
     if (joystick == null) return;
 
-    print('JOYSTICK: ${joystick!.intensity}');
-
     // Physical controller takes priority over the on-screen joystick
     if (player.controllerConnected) {
       player.joystickMovement = 0;
