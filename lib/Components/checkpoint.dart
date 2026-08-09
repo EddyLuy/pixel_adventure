@@ -5,12 +5,12 @@ import 'package:flame/components.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 
 class Checkpoint extends SpriteAnimationComponent
-    with HasGameReference<PixelAdventure> {
+    with HasGameReference<PixelAdventure>, CollisionCallbacks {
   Checkpoint({super.position, super.size});
 
   @override
   FutureOr<void> onLoad() {
-    debugMode = true;
+    //  debugMode = true;
 
     add(RectangleHitbox(position: Vector2(18, 56), size: Vector2(12, 8)));
 
@@ -25,5 +25,11 @@ class Checkpoint extends SpriteAnimationComponent
       ),
     );
     return super.onLoad();
+  }
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    // TODO: implement onCollision
+    super.onCollision(intersectionPoints, other);
   }
 }

@@ -18,6 +18,10 @@ class PixelAdventure extends FlameGame
   Color backgroundColor() => const Color(0xFF211F30);
   late final CameraComponent cam;
 
+  double currentFps = 0;
+  double _fpsTimer = 0;
+  int _fpsFrames = 0;
+
   //Initialize player
   Player player = Player(character: EnumCharacterNames.pink.text);
   late JoystickComponent joystick;
@@ -40,7 +44,7 @@ class PixelAdventure extends FlameGame
 
     addAll([cam, world]);
 
-    add(FpsTextComponent(position: Vector2(10, 10)));
+    // add(FpsTextComponent(position: Vector2(10, 10)));
 
     if (showJoystick) {
       addJoystick();
@@ -51,6 +55,16 @@ class PixelAdventure extends FlameGame
 
   @override
   void update(double dt) {
+    _fpsTimer += dt;
+    _fpsFrames++;
+
+    if (_fpsTimer >= 0.5) {
+      currentFps = _fpsFrames / _fpsTimer;
+
+      _fpsTimer = 0;
+      _fpsFrames = 0;
+    }
+
     double remainingDt = dt.clamp(0.0, 0.05);
     const double maxSubStep = 1.0 / 120.0;
     while (remainingDt > 0) {

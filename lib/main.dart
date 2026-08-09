@@ -4,6 +4,7 @@ import 'package:flame/flame.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
+import 'package:pixel_adventure/Components/fps_display.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 
 void main() async {
@@ -15,7 +16,22 @@ void main() async {
   }
 
   PixelAdventure game = PixelAdventure();
-  runApp(GameWidget(game: game));
+  runApp(
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [FpsDisplay(game: game)],
+            ),
+            Expanded(child: GameWidget(game: game)),
+          ],
+        ),
+      ),
+    ),
+  );
 
   // runApp(GameWidget(game: kDebugMode ? PixelAdventure() : game));
 }
