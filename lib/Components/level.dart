@@ -27,7 +27,7 @@ class Level extends World with HasGameReference<PixelAdventure> {
     add(level);
 
     _scrollingBackground();
-    _spawningOjects();
+    _spawningObjects();
     _addCollisions();
 
     // Collisions
@@ -68,7 +68,7 @@ class Level extends World with HasGameReference<PixelAdventure> {
     }
   }
 
-  void _spawningOjects() {
+  void _spawningObjects() {
     // Spawn in player at spawn point
     final spawnPointsLayer = level.tileMap.getLayer<ObjectGroup>("Spawnpoints");
     if (spawnPointsLayer != null) {
