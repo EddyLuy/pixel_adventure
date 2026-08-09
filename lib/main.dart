@@ -4,6 +4,7 @@ import 'package:flame/flame.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
+import 'package:pixel_adventure/Components/current_level_display.dart';
 import 'package:pixel_adventure/Components/fps_display.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 
@@ -28,6 +29,7 @@ void main() async {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  CurrentLevelDisplay(game: game),
                   FpsDisplay(game: game),
                   Text('Version $currentVersion'),
                 ],

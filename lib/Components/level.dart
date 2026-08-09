@@ -36,7 +36,19 @@ class Level extends World with HasGameReference<PixelAdventure> {
   }
 
   void _scrollingBackground() {
-    final backgroundLayer = level.tileMap.getLayer("Background");
+    String backgroundColor = 'Gray';
+
+    // Try to get the Background layer from Tiled.
+    // If it doesn't exist, keep the default Gray background.
+
+    try {
+      final backgroundLayer = level.tileMap.getLayer("Background");
+      backgroundColor =
+          backgroundLayer?.properties.getValue('Background Color') ?? 'Gray';
+    } on ArgumentError {
+      // No Background layer found, so use Gray.
+      backgroundColor = 'Gray';
+    }
 
     // repeat tile across whole game
     const tileSize = 64;
@@ -44,28 +56,22 @@ class Level extends World with HasGameReference<PixelAdventure> {
     final int numTilesY = (game.size.y / tileSize).floor();
     final int numTilesX = (game.size.x / tileSize).floor();
 
-    if (backgroundLayer != null) {
-      final backgroundColor = backgroundLayer.properties.getValue(
-        'Background Color',
-      );
+    // Generate background tiling
+    for (double y = 0; y < game.size.y / numTilesY; y++) {
+      for (double x = 0; x < numTilesX; x++) {
+        // repeat across y
+        final backgroundTile = BackgroundTile(
+          color: backgroundColor,
+          position: Vector2(
+            x * tileSize,
+            y * tileSize - tileSize,
+          ), // start above
+        );
 
-      // Generate background tiling
-      for (double y = 0; y < game.size.y / numTilesY; y++) {
-        for (double x = 0; x < numTilesX; x++) {
-          // repeat across y
-          final backgroundTile = BackgroundTile(
-            color: backgroundColor ?? 'Gray',
-            position: Vector2(
-              x * tileSize,
-              y * tileSize - tileSize,
-            ), // start above
-          );
-
-          add(backgroundTile);
-        }
+        add(backgroundTile);
       }
-      ;
     }
+    ;
   }
 
   void _spawningObjects() {

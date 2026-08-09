@@ -6,6 +6,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:pixel_adventure/Components/player.dart';
 import 'package:pixel_adventure/enums/enums_characters.dart';
@@ -16,7 +17,11 @@ class PixelAdventure extends FlameGame
   @override
   // Match colour of background to remove black bars
   Color backgroundColor() => const Color(0xFF211F30);
-  late final CameraComponent cam;
+  late CameraComponent cam;
+
+  // Levels
+  List<String> levelNames = ['Level-01', 'Level-02', 'Level-03'];
+  final ValueNotifier<int> currentLevelIndex = ValueNotifier<int>(0);
 
   bool get isMobile => Platform.isAndroid || Platform.isIOS;
 
@@ -35,16 +40,8 @@ class PixelAdventure extends FlameGame
     // load all safe if you don't have many
     await images.loadAllImages();
 
-    final world = Level(levelName: 'Level-01', player: player);
-
-    cam = CameraComponent.withFixedResolution(
-      world: world,
-      width: 640,
-      height: 360,
-    );
-    cam.viewfinder.anchor = Anchor.topLeft;
-
-    addAll([cam, world]);
+    print(levelNames[currentLevelIndex.value]);
+    _loadLevel();
 
     // Show joystick only if mobile
     if (showJoystick && isMobile) {
@@ -131,5 +128,31 @@ class PixelAdventure extends FlameGame
         player.controllerMovement = 0;
         break;
     }
+  }
+
+  void loadNextLevel() {
+    if (currentLevelIndex.value < levelNames.length - 1) {
+      currentLevelIndex.value++;
+      removeWhere((component) => component is Level);
+      _loadLevel();
+    } else {
+      // No more levels remaining
+    }
+  }
+
+  void _loadLevel() {
+    Level world = Level(
+      levelName: levelNames[currentLevelIndex.value],
+      player: player,
+    );
+
+    cam = CameraComponent.withFixedResolution(
+      world: world,
+      width: 640,
+      height: 360,
+    );
+    cam.viewfinder.anchor = Anchor.topLeft;
+
+    addAll([cam, world]);
   }
 }

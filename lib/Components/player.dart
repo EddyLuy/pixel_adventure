@@ -4,6 +4,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 import 'package:gamepads/gamepads.dart';
+import 'package:pixel_adventure/Components/checkpoint.dart';
 import 'package:pixel_adventure/Components/collision_block.dart';
 import 'package:pixel_adventure/Components/custom_hitbox.dart';
 import 'package:pixel_adventure/Components/fruit.dart';
@@ -11,7 +12,15 @@ import 'package:pixel_adventure/Components/saw.dart';
 import 'package:pixel_adventure/Components/utils.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 
-enum PlayerState { idle, running, jumping, falling, hit, appearing }
+enum PlayerState {
+  idle,
+  running,
+  jumping,
+  falling,
+  hit,
+  appearing,
+  disappearing,
+}
 
 class Player extends SpriteAnimationGroupComponent
     with HasGameReference<PixelAdventure>, KeyboardHandler, CollisionCallbacks {
@@ -24,6 +33,7 @@ class Player extends SpriteAnimationGroupComponent
   late final SpriteAnimation fallingAnimation;
   late final SpriteAnimation hitAnimation;
   late final SpriteAnimation appearingAnimation;
+  late final SpriteAnimation disappearingAnimation;
 
   bool keyboardActive = false;
 
@@ -55,6 +65,8 @@ class Player extends SpriteAnimationGroupComponent
   bool gotHit = false;
   bool isOnPlatform = false;
 
+  bool reachedCheckpoint = false;
+
   List<CollisionBlock> collisionBlocks = [];
   bool hitCeilingThisFrame = false;
 
@@ -70,17 +82,14 @@ class Player extends SpriteAnimationGroupComponent
 
   @override
   FutureOr<void> onLoad() async {
-    print('PLAYER ONLOAD - GAMEPAD LISTENER STARTED');
-
     final controllers = await Gamepads.list();
     controllerConnected = controllers.isNotEmpty;
 
-    print('CONTROLLERS FOUND: ${controllers.length}');
     print('CONTROLLER CONNECTED: $controllerConnected');
 
-    for (final controller in controllers) {
-      print('CONTROLLER: ${controller.name} | ID: ${controller.id}');
-    }
+    // for (final controller in controllers) {
+    //   print('CONTROLLER: ${controller.name} | ID: ${controller.id}');
+    // }
 
     _gamepadSubscription = Gamepads.normalizedEvents.listen((event) {
       const deadzone = 0.15;
@@ -88,7 +97,7 @@ class Player extends SpriteAnimationGroupComponent
       if (event.axis == GamepadAxis.leftStickX) {
         controllerMovement = event.value.abs() > deadzone ? event.value : 0;
 
-        print('STICK Y: ${event.value}');
+        //        print('STICK Y: ${event.value}');
       }
 
       if (event.axis == GamepadAxis.leftStickY) {
@@ -128,7 +137,7 @@ class Player extends SpriteAnimationGroupComponent
       }
     }
 
-    if (!gotHit) {
+    if (!gotHit && !reachedCheckpoint) {
       _updatePlayerState(dt);
       _updatePlayerMovement(dt);
       _checkHorizontalCollisions();
@@ -192,12 +201,18 @@ class Player extends SpriteAnimationGroupComponent
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    if (other is Fruit) {
-      other.collidedWithPlayer();
+    if (!reachedCheckpoint) {
+      if (other is Fruit) {
+        other.collidedWithPlayer();
+      }
+      if (other is Saw) {
+        _respawn();
+      }
+      if (other is Checkpoint && !reachedCheckpoint) {
+        _reachedCheckpoint();
+      }
     }
-    if (other is Saw) {
-      _respawn();
-    }
+
     super.onCollision(intersectionPoints, other);
   }
 
@@ -209,6 +224,7 @@ class Player extends SpriteAnimationGroupComponent
     hitAnimation = _spriteAnimation("Hit", 7);
 
     appearingAnimation = _specialSpriteAnimation("Appearing", 7);
+    disappearingAnimation = _specialSpriteAnimation("Disappearing", 7);
 
     // List of all animations
     animations = {
@@ -218,6 +234,7 @@ class Player extends SpriteAnimationGroupComponent
       PlayerState.falling: fallingAnimation,
       PlayerState.hit: hitAnimation,
       PlayerState.appearing: appearingAnimation,
+      PlayerState.disappearing: disappearingAnimation,
     };
 
     // Set current animation
@@ -423,5 +440,28 @@ class Player extends SpriteAnimationGroupComponent
     dropThroughTimer = 0.2;
     isOnGround = false;
     isOnPlatform = false;
+  }
+
+  void _reachedCheckpoint() {
+    reachedCheckpoint = true;
+    if (scale.x > 0) {
+      position = position - Vector2.all(32); // apply offset for animation
+    } else {
+      position = position + Vector2(32, -32); // apply offset for animation
+    }
+
+    current = PlayerState.disappearing;
+
+    const reachedCheckpointDuration = Duration(milliseconds: 50 * 7);
+
+    Future.delayed(reachedCheckpointDuration, () {
+      reachedCheckpoint = false;
+      position = Vector2.all(-640); // move character off screen
+
+      const waitToChangeLevelDuration = Duration(seconds: 3);
+      Future.delayed(waitToChangeLevelDuration, () {
+        game.loadNextLevel();
+      });
+    });
   }
 }
