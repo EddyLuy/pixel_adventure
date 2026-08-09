@@ -16,15 +16,22 @@ void main() async {
   }
 
   PixelAdventure game = PixelAdventure();
+  final double currentVersion = 1.01;
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [FpsDisplay(game: game)],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  FpsDisplay(game: game),
+                  Text('Version $currentVersion'),
+                ],
+              ),
             ),
             Expanded(child: GameWidget(game: game)),
           ],

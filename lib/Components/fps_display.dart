@@ -39,10 +39,7 @@ class _FpsDisplayState extends State<FpsDisplay> {
   Widget build(BuildContext context) {
     return Text(
       'FPS: ${fps.toStringAsFixed(0)}',
-      style: const TextStyle(
-        color: Color.fromARGB(255, 9, 0, 33),
-        fontSize: 16,
-      ),
+      style: const TextStyle(color: Color.fromARGB(255, 9, 0, 33)),
     );
   }
 }
