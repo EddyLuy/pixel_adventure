@@ -1,19 +1,24 @@
-import 'dart:io';
-
 import 'package:flame/flame.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
+import 'package:pixel_adventure/Components/collected_fruit_display.dart';
 import 'package:pixel_adventure/Components/current_level_display.dart';
 import 'package:pixel_adventure/Components/fps_display.dart';
+import 'package:pixel_adventure/Components/menu_button.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 
 //TODO: Controller stops working after level 1.
 
+bool get isMobile =>
+    !kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS);
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Only apply fullscreen/orientation on mobile
-  if (!Platform.isWindows && !Platform.isLinux && !Platform.isMacOS) {
+  if (isMobile) {
     await Flame.device.fullScreen();
     await Flame.device.setLandscape();
   }
@@ -31,7 +36,15 @@ void main() async {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CurrentLevelDisplay(game: game),
+                  Row(
+                    children: [
+                      CurrentLevelDisplay(game: game),
+                      SizedBox(width: 12),
+                      CollectedPoints(game: game),
+                      SizedBox(width: 12),
+                      MenuButton(game: game),
+                    ],
+                  ),
                   FpsDisplay(game: game),
                   Text('Version $currentVersion'),
                 ],

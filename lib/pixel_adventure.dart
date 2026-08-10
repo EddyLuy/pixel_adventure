@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:flame/components.dart';
@@ -22,9 +21,18 @@ class PixelAdventure extends FlameGame
 
   // Levels
   List<String> levelNames = ['Level-01', 'Level-02', 'Level-03'];
-  final ValueNotifier<int> currentLevelIndex = ValueNotifier<int>(0);
+  final ValueNotifier<int> currentLevelIndex = ValueNotifier<int>(
+    0,
+  ); // will update in real time
 
-  bool get isMobile => Platform.isAndroid || Platform.isIOS;
+  final ValueNotifier<int> fruitsCollected = ValueNotifier<int>(
+    0,
+  ); // will update in real time
+
+  bool get isMobile =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
 
   double currentFps = 0;
   double _fpsTimer = 0;
@@ -34,6 +42,9 @@ class PixelAdventure extends FlameGame
   Player player = Player(character: EnumCharacterNames.pink.text);
   JoystickComponent? joystick;
   bool showMobileControls = true;
+
+  // Points and Menu
+  final ValueNotifier<int> speedUpgradeCost = ValueNotifier(5);
 
   @override
   FutureOr<void> onLoad() async {

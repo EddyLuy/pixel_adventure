@@ -81,6 +81,6 @@
   <object id="47" x="112" y="48" width="480" height="16"/>
   <object id="59" x="352" y="240" width="16" height="48"/>
   <object id="61" x="352" y="272" width="112" height="16"/>
-  <object id="64" x="544" y="112" width="32" height="128"/>
+  <object id="64" x="528" y="112" width="48" height="128"/>
  </objectgroup>
 </map>

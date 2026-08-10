@@ -90,6 +90,7 @@ class Level extends World with HasGameReference<PixelAdventure> {
             print("Fruit Spawn Point at ${spawnPoint.x}, ${spawnPoint.y}");
             final fruit = Fruit(
               fruit: spawnPoint.name,
+              points: _getFruitPoints(spawnPoint.name),
               position: Vector2(spawnPoint.x, spawnPoint.y),
               size: Vector2(spawnPoint.width, spawnPoint.height),
             );
@@ -149,5 +150,22 @@ class Level extends World with HasGameReference<PixelAdventure> {
     }
 
     player.collisionBlocks = collisionBlocks;
+  }
+
+  int _getFruitPoints(String fruit) {
+    switch (fruit) {
+      case 'Apple':
+        return 1;
+
+      case 'Banana':
+        return 2;
+
+      case 'Kiwi':
+      case 'Cherries':
+        return 5;
+
+      default:
+        return 1;
+    }
   }
 }

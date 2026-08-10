@@ -7,9 +7,15 @@ import 'package:pixel_adventure/pixel_adventure.dart';
 
 class Fruit extends SpriteAnimationComponent
     with HasGameReference<PixelAdventure>, CollisionCallbacks {
-  Fruit({this.fruit = 'Apple', super.position, super.size});
+  Fruit({
+    required this.fruit,
+    super.position,
+    super.size,
+    required this.points,
+  });
 
   final String fruit;
+  final int points;
 
   bool _collected = false;
 
@@ -69,6 +75,8 @@ class Fruit extends SpriteAnimationComponent
         ),
       );
       _collected = true;
+      game.fruitsCollected.value += points;
+      removeFromParent();
     }
     ;
     // Future.delayed(
