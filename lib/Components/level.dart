@@ -9,6 +9,7 @@ import 'package:pixel_adventure/Components/fruit.dart';
 import 'package:pixel_adventure/Components/player.dart';
 import 'package:pixel_adventure/Components/saw.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
+import 'package:pixel_adventure/Components/scrolling_background.dart';
 
 //with HasGameReference gets info about the game
 
@@ -36,42 +37,16 @@ class Level extends World with HasGameReference<PixelAdventure> {
   }
 
   void _scrollingBackground() {
+    final backgroundLayer = level.tileMap.getLayer("Background");
+
     String backgroundColor = 'Gray';
 
-    // Try to get the Background layer from Tiled.
-    // If it doesn't exist, keep the default Gray background.
-
-    try {
-      final backgroundLayer = level.tileMap.getLayer("Background");
+    if (backgroundLayer != null) {
       backgroundColor =
-          backgroundLayer?.properties.getValue('Background Color') ?? 'Gray';
-    } on ArgumentError {
-      // No Background layer found, so use Gray.
-      backgroundColor = 'Gray';
+          backgroundLayer.properties.getValue('Background Color') ?? 'Gray';
     }
 
-    // repeat tile across whole game
-    const tileSize = 64;
-
-    final int numTilesY = (game.size.y / tileSize).floor();
-    final int numTilesX = (game.size.x / tileSize).floor();
-
-    // Generate background tiling
-    for (double y = 0; y < game.size.y / numTilesY; y++) {
-      for (double x = 0; x < numTilesX; x++) {
-        // repeat across y
-        final backgroundTile = BackgroundTile(
-          color: backgroundColor,
-          position: Vector2(
-            x * tileSize,
-            y * tileSize - tileSize,
-          ), // start above
-        );
-
-        add(backgroundTile);
-      }
-    }
-    ;
+    add(ScrollingBackground(color: backgroundColor));
   }
 
   void _spawningObjects() {
