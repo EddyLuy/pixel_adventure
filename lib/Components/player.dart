@@ -55,7 +55,7 @@ class Player extends SpriteAnimationGroupComponent
   double joystickMovement = 0;
   bool controllerConnected = false;
 
-  bool keyboardJump = false;
+  bool isJumpKeyPressed = false;
   bool controllerJump = false;
 
   Vector2 startingPosition = Vector2.zero();
@@ -66,6 +66,9 @@ class Player extends SpriteAnimationGroupComponent
   bool isOnPlatform = false;
 
   bool reachedCheckpoint = false;
+
+  // Prevent held keys from immediately moving the player after respawn.
+  bool _movementInputLocked = false;
 
   List<CollisionBlock> collisionBlocks = [];
   bool hitCeilingThisFrame = false;
@@ -152,7 +155,7 @@ class Player extends SpriteAnimationGroupComponent
     if (gotHit &&
         current == PlayerState.appearing &&
         animationTicker?.done() == true) {
-      velocity = Vector2.zero();
+      _resetMovement();
       position = startingPosition;
 
       gotHit = false;
@@ -175,24 +178,38 @@ class Player extends SpriteAnimationGroupComponent
         keysPressed.contains(LogicalKeyboardKey.arrowDown) ||
         keysPressed.contains(LogicalKeyboardKey.keyS);
 
-    keyboardMovement = 0;
-
-    if (isLeftKeyPressed) {
-      keyboardMovement -= 1;
-    }
-
-    if (isRightKeyPressed) {
-      keyboardMovement += 1;
-    }
-
-    if (isDownKeyPressed) {
-      _dropThroughPlatform();
-    }
-
-    keyboardJump =
+    final jumpPressed =
         keysPressed.contains(LogicalKeyboardKey.keyW) ||
         keysPressed.contains(LogicalKeyboardKey.space) ||
         keysPressed.contains(LogicalKeyboardKey.arrowUp);
+
+    // Lock movement until the held movement keys are released.
+    if (_movementInputLocked) {
+      keyboardMovement = 0;
+
+      if (!isLeftKeyPressed && !isRightKeyPressed) {
+        _movementInputLocked = false;
+      }
+    }
+
+    // Normal movement handling.
+    if (!_movementInputLocked) {
+      keyboardMovement = 0;
+
+      if (isLeftKeyPressed) {
+        keyboardMovement -= 1;
+      }
+
+      if (isRightKeyPressed) {
+        keyboardMovement += 1;
+      }
+    }
+
+    if (isDownKeyPressed && !_movementInputLocked) {
+      _dropThroughPlatform();
+    }
+
+    isJumpKeyPressed = jumpPressed;
 
     keyboardActive = keyboardMovement != 0;
 
@@ -306,7 +323,7 @@ class Player extends SpriteAnimationGroupComponent
     // Clamp so keyboard + controller together can't exceed 1
     horizontalMovement = horizontalMovement.clamp(-1.0, 1.0);
 
-    hasJumped = keyboardJump || controllerJump;
+    hasJumped = isJumpKeyPressed || controllerJump;
 
     // Controller left stick down = drop through platform
     if (controllerVerticalMovement < -0.5) {
@@ -406,14 +423,14 @@ class Player extends SpriteAnimationGroupComponent
 
     gotHit = true;
 
-    // Play hit animation
+    _resetMovement();
+
     current = PlayerState.hit;
 
     Future.delayed(hitDuration, () {
       scale.x = 1;
       position = startingPosition - Vector2.all(96 - 64);
 
-      // Start appearing animation
       current = PlayerState.appearing;
     });
   }
@@ -463,5 +480,21 @@ class Player extends SpriteAnimationGroupComponent
         game.loadNextLevel();
       });
     });
+  }
+
+  void _resetMovement() {
+    horizontalMovement = 0;
+    keyboardMovement = 0;
+    controllerMovement = 0;
+    joystickMovement = 0;
+
+    velocity = Vector2.zero();
+
+    isOnGround = false;
+    isOnPlatform = false;
+    hasJumped = false;
+
+    _movementInputLocked = true;
+    keyboardActive = false;
   }
 }
